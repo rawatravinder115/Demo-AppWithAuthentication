@@ -7,7 +7,7 @@ const AuthForm = () => {
   const passwordInputRef = useRef();
 
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading]=useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -22,42 +22,52 @@ const AuthForm = () => {
     // optional : add validation
 
     setIsLoading(true);
+    let url;
     if (isLogin) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDlUlyhtmeUXpELJ8mEvwnn0XVZNraejvY";
+      fetch();
     } else {
-      fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlUlyhtmeUXpELJ8mEvwnn0XVZNraejvY",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: enteredEmail,
-            password: enteredPassword,
-            returnSecureToken: true,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then((res) =>{
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDlUlyhtmeUXpELJ8mEvwnn0XVZNraejvY";
+    }
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
         setIsLoading(false);
-        if(res.ok){
-
-        }else{
-          return res.json().then((data) =>{
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then((data) => {
             // // show an error modal.
             // console.log(data);
 
-            let errorMessage= 'Authentication Failed';
+            let errorMessage = "Authentication Failed";
             // if(data && data.error && data.error.message){
             //    errorMessage= data.error.message;
             // }
             alert(errorMessage);
-          })
+            throw new Error(errorMessage);
+          });
         }
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        alert(err.message);
       });
-      // your key is specific for every project and get from firebase project setting.
-    }
   };
-
+  // your key is specific for every project and get from firebase project setting.
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>
@@ -76,7 +86,9 @@ const AuthForm = () => {
           />
         </div>
         <div className={classes.actions}>
-         { !isLoading && <button>{isLogin ? "Login" : "Create Account"}</button>}
+          {!isLoading && (
+            <button>{isLogin ? "Login" : "Create Account"}</button>
+          )}
           {isLoading && <p>Sending Request...</p>}
           <button
             type="button"
